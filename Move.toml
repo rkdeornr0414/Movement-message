@@ -1,0 +1,13 @@
+
+#### Move.toml
+프로젝트 설정 파일입니다.
+```toml
+[package]
+name = "secure_contract"
+version = "0.0.1"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "main" }
+
+[addresses]
+std = "0x1"
