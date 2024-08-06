@@ -1,6 +1,6 @@
-# aptos-secure-contract
+# Movement-secure-contract
 
 
-# Aptos Secure Contract
+# Movement Secure Contract
 
-This repository contains a secure contract module for the Aptos blockchain, developed using the Move programming language.
+This repository contains a secure contract module for the Movement blockchain, developed using the Move programming language.
