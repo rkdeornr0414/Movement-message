@@ -31,11 +31,5 @@ module move_security::Movement {
         idx.is_some() && vector::borrow(&asset_table.assets, idx.unwrap()).owner == owner
     }
 
-    // 자산을 다른 소유자에게 전송하는 함수
-    public fun transfer_asset(asset_table: &mut AssetTable, asset_id: u64, new_owner: address) {
-        let idx = find_asset_index_mut(asset_table, asset_id);
-        assert!(idx.is_some(), 100); // 자산이 존재하는지 확인
-        let asset_ref = vector::borrow_mut(&mut asset_table.assets, idx.unwrap());
-        *asset_ref = Asset { id: asset_ref.id, owner: new_owner, value: asset_ref.value };
-    }
+
 }
