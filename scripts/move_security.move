@@ -1,41 +1,57 @@
-module move_security::Movement {
+module move_security::MovementMessage {
     use std::vector;
+    use std::signer;
     use std::option;
 
-    // 자산 구조체 정의
-    struct Asset has key, store, drop {
+    struct Message has key, store, drop {
         id: u64,
-        owner: address,
-        value: u64,
+        sender: address,
+        recipient: address,
+        content: vector<u8>,
+        timestamp: u64,
     }
 
-    // 사용자의 자산을 관리하는 테이블
-    struct AssetTable has key, store {
-        assets: vector::Vector<Asset>,
+    struct MessageBox has key, store {
+        messages: vector::T<Message>,
     }
 
-    // AssetTable을 초기화하는 함수
-    public fun initialize(): AssetTable {
-        AssetTable { assets: vector::empty<Asset>() }
+    public fun initialize(owner: &signer) {
+        let message_box = MessageBox { messages: vector::empty<Message>() };
+        move_to(owner, message_box);
     }
 
-    // 새로운 자산을 생성하여 벡터에 추가하는 함수
-    public fun create_asset(asset_table: &mut AssetTable, owner: address, asset_id: u64, value: u64) {
-        let new_asset = Asset { id: asset_id, owner, value };
-        vector::push_back(&mut asset_table.assets, new_asset);
+    public fun send_message(sender: &signer, recipient: address, content: vector<u8>, timestamp: u64) {
+        let sender_address = signer::address_of(sender);
+        let message = Message {
+            id: timestamp,
+            sender: sender_address,
+            recipient,
+            content,
+            timestamp,
+        };
+        
+        let message_box = borrow_global_mut<MessageBox>(sender_address);
+        vector::push_back(&mut message_box.messages, message);
     }
 
-        // 자산의 소유권을 확인하는 함수
-    public fun verify_ownership(asset_table: &AssetTable, asset_id: u64, owner: address): bool {
-        let idx = find_asset_index(asset_table, asset_id);
-        idx.is_some() && vector::borrow(&asset_table.assets, idx.unwrap()).owner == owner
+    public fun get_messages(owner: address): vector::T<Message> {
+        let message_box = borrow_global<MessageBox>(owner);
+        message_box.messages
     }
 
-    // 자산을 다른 소유자에게 전송하는 함수
-    public fun transfer_asset(asset_table: &mut AssetTable, asset_id: u64, new_owner: address) {
-        let idx = find_asset_index_mut(asset_table, asset_id);
-        assert!(idx.is_some(), 100); // 자산이 존재하는지 확인
-        let asset_ref = vector::borrow_mut(&mut asset_table.assets, idx.unwrap());
-        *asset_ref = Asset { id: asset_ref.id, owner: new_owner, value: asset_ref.value };
+    public fun get_received_messages(owner: address): vector::T<Message> {
+        let message_box = borrow_global<MessageBox>(owner);
+        let mut received_messages = vector::empty<Message>();
+        let length = vector::length(&message_box.messages);
+
+        let mut i = 0;
+        while (i < length) {
+            let message = vector::borrow(&message_box.messages, i);
+            if (message.recipient == owner) {
+                vector::push_back(&mut received_messages, *message);
+            }
+            i = i + 1;
+        }
+        received_messages
     }
 }
