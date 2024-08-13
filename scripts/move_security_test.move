@@ -21,4 +21,32 @@ module move_security_test::young_move {
         content: string::String,
         timestamp: u64,
     }
+
+    public entry fun initialize_message_box(account: &signer){
+        let message_box = MessageBox{
+            messages: table::new(),
+            message_counter: 0
+        };
+        move_to(account, message_box);
+    }
+
+    public entry fun send_message(account: &signer, recipient: address, content: string::String, timestamp: u64) acquires MessageBox{
+        let sender_address = signer::address_of(account);
+        assert!(exists<MessageBox>(sender_address), E_NOT_INITIALIZED);
+
+        let message_box = borrow_global_mut<Message>(sender_address);
+        let message_id = message_box.message_counter + 1;
+
+        let new_message = Message {
+            message_id,
+            sender: sender_address,
+            recipient,
+            content,
+            timestamp,
+        };
+
+        table::add(&mut message_box.messages, message_id, new_message);
+        message_box.message_counter = message_id;
+        event::emit(new_message);
+    }
 }
