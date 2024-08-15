@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 const client = new AptosClient('https://fullnode.devnet.aptoslabs.com/v1');
 const faucetClient = new FaucetClient('https://faucet.devnet.aptoslabs.com');
 
-const privateKey = 'YOUR_PRIVATE_KEY'; // 사용자 계정의 비밀키
+const privateKey = ''; // 사용자 계정의 비밀키
 const account = new AptosAccount(HexString.ensure(privateKey).toUint8Array());
 
 // 메시지 전송 API
