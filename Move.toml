@@ -1,13 +1,18 @@
-
-#### Move.toml
-프로젝트 설정 파일입니다.
-```toml
 [package]
-name = "secure_contract"
-version = "0.0.1"
-
-[dependencies]
-AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "main" }
+name = "movement_message"
+version = "1.0.0"
+authors = []
 
 [addresses]
-std = "0x1"
+move_security_test = "0xdd3e3c1e188591dbf47eef13fe0383cfc30939b22572a4a4f0c90f7d31af08ff"
+[dev-addresses]
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-core.git"
+rev = "mainnet"
+subdir = "aptos-move/framework/aptos-framework"
+
+[dev-dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "main" }
+AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib", rev = "main" }
+MoveStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/move-stdlib", rev = "main" }
