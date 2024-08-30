@@ -64,6 +64,8 @@ To connect your wallet:
 2. Ensure the Petra wallet extension is installed and configured.
 3. Click on "Connect Wallet" and follow the instructions provided by the Petra wallet extension.
 
+"Note: Currently, the Movement Message application only supports wallet integration via Google account login. To connect your wallet, please ensure you use a Google account and follow the instructions provided by the Petra wallet extension in Google Chrome."
+
 ## Features
 
 - **Decentralized Chat**: Powered by the Aptos blockchain for secure, on-chain messaging.
