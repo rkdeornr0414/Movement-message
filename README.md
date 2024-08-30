@@ -25,7 +25,7 @@ To run this project locally, follow these steps:
 3. **Install dependencies for the backend:**
 
     ```bash
-    cd ../backend
+    cd source
     npm install
     ```
 
@@ -48,7 +48,7 @@ To run this project locally, follow these steps:
 6. **Start the client:**
 
     ```bash
-    cd ../client
+    cd ./client/src/
     npm start
     ```
 
