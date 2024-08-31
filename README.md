@@ -78,7 +78,4 @@ To connect your wallet:
 
 - **Frontend**: React.js, TypeScript, CSS
 - **Backend**: Node.js, Express, SQLite, WebSocket
-- **Blockchain**: Aptos
-
-Feel free to contribute to this project or open issues for any bugs you encounter. Let's build a more secure communication platform together!
-
+- **Blockchain**: Aptos, Movement
