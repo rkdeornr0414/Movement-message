@@ -1,3 +1,4 @@
+// backend.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
@@ -53,13 +54,13 @@ app.post('/register', async (req, res) => {
 
     db.get("SELECT * FROM users WHERE address = ?", [address], async (err, row) => {
         if (row) {
-            return res.status(400).send({ error: 'User already registered.' });
+            return res.status(400).json({ error: 'User already registered.' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
         db.run("INSERT INTO users (username, password, address) VALUES (?, ?, ?)", [username, hashedPassword, address], (err) => {
             if (err) {
-                return res.status(500).send({ error: 'Error saving user.' });
+                return res.status(500).json({ error: 'Error saving user.' });
             }
 
             const privateKey = '';  // Replace with your actual private key
@@ -76,8 +77,8 @@ app.post('/register', async (req, res) => {
                 .then(transaction => client.signTransaction(account, transaction))
                 .then(signedTxn => client.submitTransaction(signedTxn))
                 .then(transactionRes => client.waitForTransaction(transactionRes.hash))
-                .then(() => res.status(200).send({ success: true, address }))
-                .catch(error => res.status(500).send({ error: error.message }));
+                .then(() => res.status(200).json({ success: true, address }))
+                .catch(error => res.status(500).json({ error: error.message }));
         });
     });
 });
@@ -88,15 +89,15 @@ app.post('/login', async (req, res) => {
 
     db.get("SELECT * FROM users WHERE address = ?", [address], async (err, user) => {
         if (!user) {
-            return res.status(400).send({ error: 'User not found.' });
+            return res.status(400).json({ error: 'User not found.' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).send({ error: 'Invalid credentials.' });
+            return res.status(400).json({ error: 'Invalid credentials.' });
         }
 
-        res.status(200).send({ success: true, username: user.username });
+        res.status(200).json({ success: true, username: user.username });
     });
 });
 
@@ -106,7 +107,7 @@ app.post('/send_message', (req, res) => {
 
     db.run("INSERT INTO messages (sender, recipient, content, timestamp) VALUES (?, ?, ?, ?)", [sender, recipient, content, timestamp], (err) => {
         if (err) {
-            return res.status(500).send({ error: 'Error saving message.' });
+            return res.status(500).json({ error: 'Error saving message.' });
         }
         // Notify all connected clients about the new message
         wss.clients.forEach((client) => {
@@ -114,7 +115,7 @@ app.post('/send_message', (req, res) => {
                 client.send(JSON.stringify({ sender, recipient, content, timestamp }));
             }
         });
-        res.status(200).send({ success: true });
+        res.status(200).json({ success: true });
     });
 });
 
@@ -124,9 +125,9 @@ app.get('/messages', (req, res) => {
 
     db.all("SELECT * FROM messages WHERE sender = ? OR recipient = ?", [address, address], (err, rows) => {
         if (err) {
-            return res.status(500).send({ error: 'Error fetching messages.' });
+            return res.status(500).json({ error: 'Error fetching messages.' });
         }
-        res.status(200).send({ messages: rows });
+        res.status(200).json({ messages: rows });
     });
 });
 
