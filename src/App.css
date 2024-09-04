@@ -1,38 +1,158 @@
-.App {
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('../public/movement.png') no-repeat center center fixed;
+  background-size: cover;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.home, .auth-container {
+  background-color: #C7BE37;
+  padding: 20px;
+  border-radius: 8px;
   text-align: center;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 10;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.chat-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  z-index: 20; /* Ensure the chat container is above the background text */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.chat-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  width: 450px;
+  background-color: #C7BE37;
+  border-radius: 8px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  position: relative;
+  z-index: 20; /* Ensure the chat container is above the background text */
+}
+
+.chat-sidebar {
+  flex: 1;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  margin: 0 20px;
+  z-index: 20; /* Ensure this is above the background text */
+}
+
+.chat-sidebar .hidden {
+  display: none;
+}
+
+.contacts, .chat-history {
+  overflow-y: auto;
+  max-height: 300px; /* Increase the height to show more content */
+  max-width: 300px; /* Increase the width to show more content */
+  overflow-x: auto; /* Allow horizontal scrolling */
+}
+
+button.toggle-button {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.chat-sidebar div {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.chat-sidebar div.selected {
+  background-color: #DBD04A;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.chat-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.chat-main h2, .chat-main h3 {
+  margin: 0 0 10px 0;
+}
+
+.chat-main input {
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 16px;
+  width: calc(100% - 22px);
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+button {
+  margin: 10px 0;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #DBD04A;
+  color: white;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+.logout-button {
+  background-color: red;
+  color: white;
+}
+
+.logout-button:hover {
+  background-color: darkred;
+}
+
+@font-face {
+  font-family: 'LOTTERIACHAB';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/LOTTERIACHAB.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.text-style {
+  font-family: 'LOTTERIACHAB', sans-serif;
+  font-size: 8vw;
+  font-weight: normal;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: yellow;
+  position: absolute;
+  z-index: 1; /* Ensure the text is behind all interactive elements */
+}
+
+.text-top-left {
+  top: 100px;
+  left: 50px;
+}
+
+.text-bottom-right {
+  bottom: 100px;
+  right: 50px;
 }
