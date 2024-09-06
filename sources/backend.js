@@ -1,4 +1,4 @@
-// backend.js
+require('dotenv').config(); // Load environment variables
 const express = require('express');
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
@@ -7,24 +7,39 @@ const cors = require('cors');
 const { AptosClient, AptosAccount, HexString } = require('aptos');
 const http = require('http');
 const WebSocket = require('ws');
+const logger = require('./logger'); // Import logger
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(cors());
 
 // Initialize SQLite Database
-const db = new sqlite3.Database('./messenger.db');
+const db = new sqlite3.Database('./messenger.db', (err) => {
+    if (err) {
+        logger.error('Error opening database:', err.message);
+    } else {
+        logger.info('Connected to SQLite database.');
+    }
+});
 
 // Create Users and Messages Table
 db.serialize(() => {
-    db.run("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT, address TEXT UNIQUE)");
-    db.run("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, recipient TEXT, content TEXT, timestamp TEXT)");
+    db.run("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT, address TEXT UNIQUE)", (err) => {
+        if (err) {
+            logger.error('Error creating users table:', err.message);
+        }
+    });
+    db.run("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, recipient TEXT, content TEXT, timestamp TEXT)", (err) => {
+        if (err) {
+            logger.error('Error creating messages table:', err.message);
+        }
+    });
 });
 
 // Initialize Aptos Client
-const client = new AptosClient('https://aptos.testnet.suzuka.movementlabs.xyz/v1/');
+const client = new AptosClient(process.env.APTOS_CLIENT_URL);
 
 // Create HTTP server for WebSocket
 const server = http.createServer(app);
@@ -57,29 +72,38 @@ app.post('/register', async (req, res) => {
             return res.status(400).json({ error: 'User already registered.' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        db.run("INSERT INTO users (username, password, address) VALUES (?, ?, ?)", [username, hashedPassword, address], (err) => {
-            if (err) {
-                return res.status(500).json({ error: 'Error saving user.' });
-            }
+        try {
+            const hashedPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
+            db.run("INSERT INTO users (username, password, address) VALUES (?, ?, ?)", [username, hashedPassword, address], (err) => {
+                if (err) {
+                    logger.error('Error inserting user:', err.message);
+                    return res.status(500).json({ error: 'Error saving user.' });
+                }
 
-            const privateKey = '';  // Replace with your actual private key
-            const account = new AptosAccount(HexString.ensure(privateKey).toUint8Array());
+                const privateKey = process.env.PRIVATE_KEY; // Load private key from .env
+                const account = new AptosAccount(HexString.ensure(privateKey).toUint8Array());
 
-            const payload = {
-                type: "entry_function_payload",
-                function: "move_security_test::user_messaging::register_user",
-                arguments: [username],
-                type_arguments: []
-            };
+                const payload = {
+                    type: "entry_function_payload",
+                    function: "move_security_test::user_messaging::register_user",
+                    arguments: [username],
+                    type_arguments: []
+                };
 
-            client.generateTransaction(account.address(), payload)
-                .then(transaction => client.signTransaction(account, transaction))
-                .then(signedTxn => client.submitTransaction(signedTxn))
-                .then(transactionRes => client.waitForTransaction(transactionRes.hash))
-                .then(() => res.status(200).json({ success: true, address }))
-                .catch(error => res.status(500).json({ error: error.message }));
-        });
+                client.generateTransaction(account.address(), payload)
+                    .then(transaction => client.signTransaction(account, transaction))
+                    .then(signedTxn => client.submitTransaction(signedTxn))
+                    .then(transactionRes => client.waitForTransaction(transactionRes.hash))
+                    .then(() => res.status(200).json({ success: true, address }))
+                    .catch(error => {
+                        logger.error('Error during Aptos transaction:', error.message);
+                        res.status(500).json({ error: error.message });
+                    });
+            });
+        } catch (error) {
+            logger.error('Error hashing password:', error.message);
+            res.status(500).json({ error: 'Internal server error' });
+        }
     });
 });
 
@@ -107,9 +131,9 @@ app.post('/send_message', (req, res) => {
 
     db.run("INSERT INTO messages (sender, recipient, content, timestamp) VALUES (?, ?, ?, ?)", [sender, recipient, content, timestamp], (err) => {
         if (err) {
+            logger.error('Error inserting message:', err.message);
             return res.status(500).json({ error: 'Error saving message.' });
         }
-        // Notify all connected clients about the new message
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify({ sender, recipient, content, timestamp }));
@@ -125,6 +149,7 @@ app.get('/messages', (req, res) => {
 
     db.all("SELECT * FROM messages WHERE sender = ? OR recipient = ?", [address, address], (err, rows) => {
         if (err) {
+            logger.error('Error fetching messages:', err.message);
             return res.status(500).json({ error: 'Error fetching messages.' });
         }
         res.status(200).json({ messages: rows });
@@ -132,5 +157,5 @@ app.get('/messages', (req, res) => {
 });
 
 server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    logger.info(`Server is running on port ${port}`);
 });
