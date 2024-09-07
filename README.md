@@ -42,7 +42,7 @@ To run this project locally, follow these steps:
 5. **Start the backend server:**
 
     ```bash
-    you need to put your private key in backend.js
+    you need to put your private key in .env file
     node backend.js
     ```
 
