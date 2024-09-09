@@ -5,6 +5,24 @@ import { useWallet, WalletName } from '@aptos-labs/wallet-adapter-react';
 import axios from 'axios';
 import './App.css'; // Custom CSS for styling
 
+// Reusable Logo component for the top-right corner
+function Logo() {
+  const navigate = useNavigate();
+
+  const goToHome = () => {
+    navigate('/');
+  };
+
+  return (
+    <img 
+      src="/logo_transparent.png" 
+      alt="Logo" 
+      className="logo-top-right" 
+      onClick={goToHome} 
+    />
+  );
+}
+
 function Home() {
   const navigate = useNavigate();
   const { connected, connect } = useWallet();
@@ -221,14 +239,17 @@ function Chat() {
 function App() {
   return (
     <Router>
-      <div className="text-style text-top-left">Movement</div>
-      <div className="text-style text-bottom-right">Message</div>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/chat" element={<Chat />} />
-      </Routes>
+      <div className="App">
+        <Logo /> {/* Add the logo to every page */}
+        <div className="text-style text-top-left">Movement</div>
+        <div className="text-style text-bottom-right">Message</div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/chat" element={<Chat />} />
+        </Routes>
+      </div>
     </Router>
   );
 }
